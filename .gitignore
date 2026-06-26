@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+
+# Byte-compiled / cache
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/raw/
+data/cleaned/
+data/database/
+*.db
+
+# Environment variables
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
