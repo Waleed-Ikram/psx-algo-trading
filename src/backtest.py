@@ -3,6 +3,7 @@ Backtesting engine: core daily-loop P&L engine, transaction cost
 and slippage modelling, and walk-forward validation splitting.
 """
 
+import numpy as np
 import pandas as pd
 
 
@@ -106,6 +107,103 @@ def run_backtest(signals_df, prices_df, initial_capital=100000,
     return pd.DataFrame(records)
 
 
+def equal_weight_benchmark(stock_dict, initial_capital=100000,
+                            commission=0.003, slippage=0.001):
+    """
+    Buy-and-hold benchmark: equal-weight every stock in stock_dict on
+    the first common trading day, then hold to the end with no further
+    trading or rebalancing.
+
+    This is the primary benchmark every strategy in this project is
+    compared against. It requires no signal, no forecast, and no
+    skill — any active strategy (classical or ML) needs to beat this,
+    net of realistic costs, to be worth its added complexity and risk.
+
+    Parameters
+    ----------
+    stock_dict : dict of {str: pandas.DataFrame}
+        Cleaned OHLCV data per ticker, e.g. from src.data.load_selected().
+        Each DataFrame must contain 'open' and 'close'.
+    initial_capital : float
+        Starting cash in PKR, split equally across all stocks
+        (initial_capital / n_stocks per stock).
+    commission : float
+        Fraction of trade value charged as commission on each stock's
+        single buy trade, e.g. 0.003 = 0.3%.
+    slippage : float
+        Fraction of trade value lost to slippage on each stock's single
+        buy trade, e.g. 0.001 = 0.1%.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Same column structure as run_backtest() — date, portfolio_value,
+        cash, shares_held, signal, trade_executed, trade_cost — so
+        compute_metrics() works on it directly with no modification.
+        'shares_held' and 'signal' aren't meaningful for a multi-asset
+        portfolio and are left as NaN; 'cash' is 0.0 throughout (fully
+        invested after day 1); 'trade_executed' is True only on the
+        start date (one buy per stock that day) and 'trade_cost' is the
+        combined commission+slippage paid across all stocks that day.
+
+    Notes
+    -----
+    start_date is the latest of every stock's own first available
+    date, so every stock in stock_dict actually has data to buy on day
+    1. A few tickers are missing a handful of rows mid-history (an
+    individual trading halt with no row in the raw data at all, rather
+    than a Tradeable=False row) instead of sharing one identical
+    calendar — those gaps are forward-filled per stock (last known
+    close carried forward) so a full portfolio value can still be
+    computed on every date any of the stocks traded. The alternative,
+    restricting to the intersection of every stock's calendar, would
+    silently drop legitimate trading days for the other stocks just
+    because one was halted. This is a standard simplification for a
+    passive benchmark and is noted here rather than hidden.
+    """
+    tickers = list(stock_dict.keys())
+    n_stocks = len(tickers)
+    cost_fraction = commission + slippage
+    per_stock_capital = initial_capital / n_stocks
+
+    start_date = max(df.index.min() for df in stock_dict.values())
+
+    all_dates = pd.DatetimeIndex(sorted(set().union(*(
+        df.index[df.index >= start_date] for df in stock_dict.values()
+    ))))
+
+    shares_held = {}
+    total_trade_cost = 0.0
+    for ticker in tickers:
+        open_price = stock_dict[ticker].loc[start_date, "open"]
+        trade_cost = per_stock_capital * cost_fraction
+        shares_held[ticker] = (per_stock_capital - trade_cost) / open_price
+        total_trade_cost += trade_cost
+    shares_series = pd.Series(shares_held)
+
+    close_prices = pd.DataFrame({
+        ticker: stock_dict[ticker]["close"].reindex(all_dates).ffill()
+        for ticker in tickers
+    })
+    portfolio_value = close_prices.mul(shares_series, axis=1).sum(axis=1)
+
+    trade_executed = pd.Series(False, index=all_dates)
+    trade_executed.loc[start_date] = True
+
+    trade_cost = pd.Series(0.0, index=all_dates)
+    trade_cost.loc[start_date] = total_trade_cost
+
+    return pd.DataFrame({
+        "date": all_dates,
+        "portfolio_value": portfolio_value.values,
+        "cash": 0.0,
+        "shares_held": np.nan,
+        "signal": np.nan,
+        "trade_executed": trade_executed.values,
+        "trade_cost": trade_cost.values,
+    })
+
+
 def run_backtest_all(stock_dict, feature_func, signal_func,
                       initial_capital=100000):
     """
@@ -195,3 +293,16 @@ if __name__ == "__main__":
     passed = all(abs(a - e) < 1e-6 for a, e in zip(actual, expected))
     print("\nPASS" if passed else "\nFAIL")
     assert passed, "Backtest engine does not match manual calculation"
+
+    # --- Equal-weight benchmark, 25 selected stocks ---
+    from src.data import load_selected
+    from src.evaluation import compute_metrics
+
+    stock_dict = load_selected()
+
+    benchmark_results = equal_weight_benchmark(stock_dict)
+    benchmark_metrics = compute_metrics(benchmark_results)
+
+    print(f"\n\nEqual-weight benchmark — {len(stock_dict)} selected stocks:\n")
+    for name, value in benchmark_metrics.items():
+        print(f"{name:<25}: {value}")
