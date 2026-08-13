@@ -193,7 +193,7 @@ def fix_index(raw_dir=RAW_DIR, cleaned_dir=CLEANED_DIR):
     print("Downloading KSE-100 index from PSX via psxdata...")
 
     client = PSXClient()
-    df = client.stocks("KSE100", start="2016-06-01")
+    df = client.stocks("KSE100", start="2016-06-01", end="2025-12-31")
 
     if df.empty:
         raise RuntimeError(

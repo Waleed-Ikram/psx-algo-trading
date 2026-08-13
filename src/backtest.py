@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def run_backtest(signals_df, prices_df, initial_capital=100000,
-                  commission=0.003, slippage=0.001):
+                  commission=0.0015, slippage=0.001):
     """
     Run a single-asset, long-only backtest with strictly next-day execution.
 
@@ -36,9 +36,14 @@ def run_backtest(signals_df, prices_df, initial_capital=100000,
     initial_capital : float
         Starting cash in PKR.
     commission : float
-        Fraction of trade value charged as commission, e.g. 0.003 = 0.3%.
+        Fraction of trade value charged as commission, e.g. 0.0015 = 0.15%.
     slippage : float
         Fraction of trade value lost to slippage, e.g. 0.001 = 0.1%.
+
+    Cost model
+    ----------
+    Commission 0.15% per side, slippage 0.1% per side. Total round-trip
+    cost 0.5%.
 
     Returns
     -------
@@ -108,7 +113,7 @@ def run_backtest(signals_df, prices_df, initial_capital=100000,
 
 
 def equal_weight_benchmark(stock_dict, initial_capital=100000,
-                            commission=0.003, slippage=0.001):
+                            commission=0.0015, slippage=0.001):
     """
     Buy-and-hold benchmark: equal-weight every stock in stock_dict on
     the first common trading day, then hold to the end with no further
@@ -129,10 +134,15 @@ def equal_weight_benchmark(stock_dict, initial_capital=100000,
         (initial_capital / n_stocks per stock).
     commission : float
         Fraction of trade value charged as commission on each stock's
-        single buy trade, e.g. 0.003 = 0.3%.
+        single buy trade, e.g. 0.0015 = 0.15%.
     slippage : float
         Fraction of trade value lost to slippage on each stock's single
         buy trade, e.g. 0.001 = 0.1%.
+
+    Cost model
+    ----------
+    Commission 0.15% per side, slippage 0.1% per side. Total round-trip
+    cost 0.5%.
 
     Returns
     -------

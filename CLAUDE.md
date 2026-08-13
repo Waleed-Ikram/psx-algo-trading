@@ -41,6 +41,11 @@ data, with honest bias-prevention, and a Streamlit dashboard for the demo.
 | Out-of-sample | 1 Jan 2023 – 31 Dec 2024 | Held-out test |
 | Final eval | 1 Jan 2025 – 31 Dec 2025 | Final reported results |
 
+### Transaction cost assumptions
+- Commission: 0.15% per side
+- Slippage: 0.1% per side
+- Total round-trip cost: 0.5%
+
 ---
 
 ## Coding rules — follow these always

@@ -20,7 +20,8 @@ def momentum_signals(df):
     -------
     pandas.DataFrame
         The input DataFrame with a new 'Signal' column:
-        1 = buy/hold long, -1 = sell/go short, 0 = no position.
+        1 = buy/hold long, -1 = exit long position and move to cash
+        (long-only system — no short selling), 0 = no position.
 
     Notes
     -----
@@ -53,7 +54,8 @@ def mean_reversion_signals(df):
     -------
     pandas.DataFrame
         The input DataFrame with a new 'Signal' column:
-        1 = buy/hold long, -1 = sell/go short, 0 = no position.
+        1 = buy/hold long, -1 = exit long position and move to cash
+        (long-only system — no short selling), 0 = no position.
 
     Notes
     -----
