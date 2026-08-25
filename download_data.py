@@ -1,4 +1,4 @@
-"""Download daily OHLCV data for all KSE-100 constituents and the KSE-100 index."""
+"""This file downloads the daily OHLCV data from psx data library."""
 
 import time
 from pathlib import Path

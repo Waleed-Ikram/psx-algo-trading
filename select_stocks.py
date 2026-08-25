@@ -1,6 +1,6 @@
 """
-Select the top 25 most liquid KSE-100 stocks by average daily volume,
-excluding short-history tickers, for use in the backtesting universe.
+This file selects the top 25 most liquid KSE-100 stocks by average daily volume,
+excluding tickers with short history, for use in the backtesting universe.
 """
 
 from pathlib import Path

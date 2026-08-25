@@ -1,0 +1,5 @@
+Strategy,n_tickers,n_positive_return,n_positive_sharpe,pct_positive_return,pct_positive_sharpe
+Momentum,25,23,23,92.0,92.0
+Mean Reversion,25,22,18,88.0,72.0
+ARIMA,25,13,10,52.0,40.0
+XGBoost,24,19,9,76.0,37.5

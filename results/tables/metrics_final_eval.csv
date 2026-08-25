@@ -1,0 +1,6 @@
+Strategy,Annualised Return,Sharpe Ratio,Sortino Ratio,Max Drawdown,Calmar Ratio,Turnover (trades/yr),n_tickers_sharpe
+Momentum,35.7,0.3,1.206,-23.9,2.274,6.2,25.0
+Mean Reversion,25.8,0.424,0.559,-18.4,1.496,3.3,25.0
+ARIMA,5.2,-0.5,-0.293,-27.9,0.346,63.3,25.0
+XGBoost,4.7,-0.494,-0.234,-12.4,1.001,8.5,22.0
+Equal-Weight Benchmark,47.0,1.168,1.918,-18.5,2.538,0.0,

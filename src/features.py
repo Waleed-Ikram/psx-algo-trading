@@ -1,6 +1,6 @@
 """
-Feature engineering: technical indicators (RSI, MACD, momentum,
-Bollinger Bands) computed from cleaned OHLCV data.
+All 9 features implemented in this file
+
 """
 
 import pandas as pd
@@ -9,38 +9,10 @@ import pandas_ta as ta
 
 def generate_features(df):
     """
-    Add technical-indicator feature columns to a cleaned stock DataFrame.
+    Adds 9 technical-indicator columns to a cleaned OHLCV DataFrame:
+    RSI(14), MACD(12,26,9), SMA20, SMA50, BB_width, Return_1d,
+    Momentum_5d, Momentum_20d, Volume_ratio.
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Cleaned OHLCV data (as returned by src.data.load_data), sorted
-        ascending by date, with at least an 'open', 'high', 'low', 'close',
-        'volume' and 'DailyReturn' column.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The input DataFrame with 9 new feature columns appended:
-
-        1. RSI          — 14-day Relative Strength Index (pandas_ta)
-        2. MACD          — MACD line, (12, 26, 9) (pandas_ta)
-        3. SMA20         — 20-day simple moving average of Close
-        4. SMA50         — 50-day simple moving average of Close
-        5. BB_width      — Bollinger Band width, (upper - lower) / middle,
-                            20-day window, 2 standard deviations (pandas_ta)
-        6. Return_1d     — daily return (renamed from DailyReturn)
-        7. Momentum_5d   — (Close / Close.shift(5)) - 1
-        8. Momentum_20d  — (Close / Close.shift(20)) - 1
-        9. Volume_ratio  — Volume / Volume.rolling(20).mean()
-
-    Notes
-    -----
-    Every feature is computed from data available up to and including
-    the current row only (rolling/shift, never centered=True), so there
-    is no look-ahead bias. Early rows will contain NaNs until each
-    feature's lookback window is satisfied (e.g. SMA50 needs 50 rows);
-    these are left in place — dropping NaNs is left to the caller.
     """
     df = df.copy()
 

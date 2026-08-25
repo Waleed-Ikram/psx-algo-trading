@@ -1,8 +1,4 @@
-"""
-Populate the XGBoost signal cache (results/xgboost_signals/) for all 25
-selected tickers. Signals only — compute_metrics() is not run here;
-see src/models.py for the Option A caching rationale.
-"""
+"""Populates results/xgboost_signals/ for all 25 selected tickers """
 
 from src.data import SELECTED_TICKERS, load_selected
 from src.features import generate_features

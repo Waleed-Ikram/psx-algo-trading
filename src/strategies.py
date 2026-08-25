@@ -1,35 +1,12 @@
-"""
-Trading strategies: abstract base class, classical strategies
-(momentum, mean reversion), and ML-based strategy wrappers.
-"""
+"""Classical trading strategies: momentum and mean reversion are written in this file"""
 
 import numpy as np
 
 
 def momentum_signals(df):
     """
-    Trend-following signal using RSI, MACD and 20-day momentum together.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        DataFrame with features added by generate_features(), containing
-        at least 'RSI', 'MACD' and 'Momentum_20d'.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The input DataFrame with a new 'Signal' column:
-        1 = buy/hold long, -1 = exit long position and move to cash
-        (long-only system — no short selling), 0 = no position.
-
-    Notes
-    -----
-    All three indicators (RSI, MACD, Momentum_20d) must agree before a
-    position is taken, which filters out noisy single-indicator signals.
-    Each day's signal uses only that day's closing values (no shift) —
-    the backtester is responsible for executing it at the next day's
-    open.
+    Signal: 1 = buy/hold, -1 = exit to cash, 0 = no position. Uses today's close only — the
+    backtester executes it at tomorrow's open.
     """
     df = df.copy()
 
@@ -42,27 +19,10 @@ def momentum_signals(df):
 
 def mean_reversion_signals(df):
     """
-    Counter-trend signal using RSI and 5-day momentum (pullback size).
+    buy stocks that look oversold and have pulled back
+    sharply, sell stocks that look overbought and have run up sharply
+    (RSI + 5-day momentum).
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        DataFrame with features added by generate_features(), containing
-        at least 'RSI' and 'Momentum_5d'.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The input DataFrame with a new 'Signal' column:
-        1 = buy/hold long, -1 = exit long position and move to cash
-        (long-only system — no short selling), 0 = no position.
-
-    Notes
-    -----
-    Buys stocks that look oversold and have pulled back sharply, sells
-    stocks that look overbought and have run up sharply. Each day's
-    signal uses only that day's closing values (no shift) — the
-    backtester is responsible for executing it at the next day's open.
     """
     df = df.copy()
 
